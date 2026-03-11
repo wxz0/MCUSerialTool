@@ -1,0 +1,13 @@
+<RCC>
+    <qresource>
+        <file>.vscode/settings.json</file>
+        <file>MCUTool.qmlproject</file>
+        <file>MCUTool/Constants.qml</file>
+        <file>MCUTool/EventListModel.qml</file>
+        <file>MCUTool/EventListSimulator.qml</file>
+        <file>MCUTool/qmldir</file>
+        <file>MCUToolContent/App.qml</file>
+        <file>MCUToolContent/Screen01.ui.qml</file>
+        <file>qtquickcontrols2.conf</file>
+    </qresource>
+</RCC>
