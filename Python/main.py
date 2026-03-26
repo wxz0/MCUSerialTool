@@ -12,10 +12,10 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtSerialPort import QSerialPort, QSerialPortInfo
 
 from autogen.settings import setup_qt_environment
-from serial_config_parser import SerialConfigParser
-from data_handler import DataHandler
-from modbus_protocol import ModbusProtocol
-from serial_port_manager import SerialPortManager
+from library.serial_config_parser import SerialConfigParser
+from library.data_handler import DataHandler
+from library.modbus_protocol import ModbusProtocol
+from library.serial_port_manager import SerialPortManager
 
 
 class SerialConfig(QObject):

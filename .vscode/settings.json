@@ -1,3 +1,5 @@
 {
-    "idf.currentSetup": "C:\\Users\\yuw\\esp\\v5.4.2\\esp-idf"
+    "idf.currentSetup": "C:\\Users\\yuw\\esp\\v5.4.2\\esp-idf",
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
 }

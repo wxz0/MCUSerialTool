@@ -11,9 +11,27 @@ import QtQuick.Controls
 import MCUTool
 
 Rectangle {
-    width: Constants.width
-    height: Constants.height
+    width: parent ? parent.width : Constants.width
+    height: parent ? parent.height : Constants.height
     visible: true
+
+    property int pageMargin: 10
+    property int panelGap: 10
+    property int compactLabelX: 18
+    property int compactFieldX: 90
+    property int compactFieldWidth: 190
+    property int compactRightPadding: 12
+    property int rightColumnWidth: compactFieldX + compactFieldWidth + compactRightPadding
+    property color panelBorderColor: "#A0A0A0"
+    property color titleColor: "#404040"
+    property color labelColor: "#404040"
+    property color statusColor: "#555555"
+    property int panelRadius: 4
+    property int titlePixelSize: 20
+    property int labelPointSize: 11
+    property int fieldHeight: 32
+    property int buttonHeight: 34
+    property int smallButtonWidth: 126
 
     color: Constants.backgroundColor
     clip: true
@@ -31,44 +49,33 @@ Rectangle {
     // ── 接收缓冲区容器 ──────────────────────────────────────────────
     Rectangle {
         id: receiveContainer
-        x: 10
-        y: 5
-        width: 638
-        height: 521
+        anchors.left: serialParamContainer.right
+        anchors.leftMargin: panelGap
+        anchors.top: parent.top
+        anchors.topMargin: 5
+        anchors.right: parent.right
+        anchors.rightMargin: pageMargin
+        anchors.bottom: sendContainer.top
+        anchors.bottomMargin: panelGap
         color: "transparent"
-        border.color: "#A0A0A0"
+        border.color: panelBorderColor
         border.width: 1
-        radius: 4
+        radius: panelRadius
 
         Text {
             id: text1
-            x: 22
-            y: 14
+            x: 18
+            y: 12
             text: qsTr("接收缓冲区")
-            font.pixelSize: 29
+            font.pixelSize: titlePixelSize
             font.bold: true
-        }
-
-        Frame {
-            id: frame
-            x: 7
-            y: 3
-            width: 175
-            height: 58
-        }
-
-        Switch {
-            id: switchModbusReceive
-            x: 15
-            y: 65
-            text: qsTr("Modbus模式")
-            onToggled: serialConfig.setModbusMode(checked)
+            color: titleColor
         }
 
         Switch {
             id: switch1
-            x: 15
-            y: 115
+            x: 18
+            y: 44
             text: qsTr("文本模式")
             checked: true
             ButtonGroup.group: receiveModeGroup
@@ -80,8 +87,8 @@ Rectangle {
 
         Switch {
             id: switch2
-            x: 15
-            y: 165
+            x: 18
+            y: 80
             text: qsTr("HEX模式")
             ButtonGroup.group: receiveModeGroup
             onToggled: {
@@ -92,67 +99,68 @@ Rectangle {
 
         Switch {
             id: switchTimestamp
-            x: 15
-            y: 215
+            x: 18
+            y: 116
             text: qsTr("时间戳模式")
             onToggled: serialConfig.setTimestampEnabled(checked)
         }
 
         Button {
             id: button
-            x: 15
-            y: 275
-            width: 146
-            height: 52
+            x: 18
+            y: 194
+            width: switchTimestamp.x + switchTimestamp.width - x
+            height: buttonHeight
             text: qsTr("清空接收区")
             onClicked: serialConfig.clearReceivedText()
         }
 
         Button {
             id: button1
-            x: 15
-            y: 335
-            width: 146
-            height: 52
+            x: 18
+            y: 234
+            width: switchTimestamp.x + switchTimestamp.width - x
+            height: buttonHeight
             text: qsTr("保存接收区")
         }
 
         Button {
             id: button2
-            x: 15
-            y: 395
-            text: qsTr("复制接受区数据")
+            x: 18
+            y: 274
+            width: switchTimestamp.x + switchTimestamp.width - x
+            height: buttonHeight
+            text: qsTr("复制接受区")
         }
 
         Label {
             id: labelEncoding
-            x: 15
-            y: 455
-            width: 60
-            height: 23
+            x: 18
+            width: 48
+            height: 20
+            y: 158
             text: qsTr("编码")
-            font.pointSize: 12
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
             id: comboBoxEncoding
-            x: 22
-            y: 475
-            width: 146
-            height: 36
+            x: 90
+            width: 190
+            height: fieldHeight
+            y: 152
             model: serialConfig.encodingOptions
             currentIndex: 0
             onCurrentTextChanged: serialConfig.setEncoding(currentText)
         }
 
-        // 串口接收数据：顶部与 switchModbusReceive 顶部对齐（y=65），
-        // 底部与 comboBoxEncoding 底部对齐（475+36=511），高度=511-65=446
         Flickable {
             id: flickableReceive
-            x: 191
-            y: 65
-            width: 427
-            height: 446
+            x: 292
+            y: 44
+            width: parent.width - 302
+            height: parent.height - 54
             clip: true
             property bool autoScroll: true
 
@@ -186,36 +194,32 @@ Rectangle {
     // ── 发送缓冲区容器 ──────────────────────────────────────────────
     Rectangle {
         id: sendContainer
-        x: 10
-        y: 535
-        width: 638
-        height: 315
+        anchors.left: serialParamContainer.right
+        anchors.leftMargin: panelGap
+        anchors.right: parent.right
+        anchors.rightMargin: pageMargin
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: pageMargin
+        height: Math.max(250, Math.round(parent.height * 0.34))
         color: "transparent"
-        border.color: "#A0A0A0"
+        border.color: panelBorderColor
         border.width: 1
-        radius: 4
+        radius: panelRadius
 
         Text {
             id: text2
-            x: 22
-            y: 19
+            x: 18
+            y: 12
             text: qsTr("发送缓冲区")
-            font.pixelSize: 29
+            font.pixelSize: titlePixelSize
             font.bold: true
-        }
-
-        Frame {
-            id: frame1
-            x: 7
-            y: 8
-            width: 175
-            height: 58
+            color: titleColor
         }
 
         Switch {
             id: switch3
-            x: 15
-            y: 85
+            x: 18
+            y: 44
             text: qsTr("文本模式")
             checked: true
             ButtonGroup.group: sendModeGroup
@@ -227,8 +231,8 @@ Rectangle {
 
         Switch {
             id: switch4
-            x: 15
-            y: 135
+            x: 18
+            y: 80
             text: qsTr("HEX模式")
             ButtonGroup.group: sendModeGroup
             onToggled: {
@@ -239,30 +243,30 @@ Rectangle {
 
         Button {
             id: button3
-            x: 15
-            y: 195
-            width: 146
-            height: 52
+            x: 18
+            y: 116
+            width: switch4.x + switch4.width - x
+            height: buttonHeight
             text: qsTr("清空发送区")
             onClicked: textArea1.text = ""
         }
 
         Button {
             id: button4
-            x: 15
-            y: 255
-            width: 146
-            height: 52
+            x: 18
+            y: 156
+            width: switch4.x + switch4.width - x
+            height: buttonHeight
             text: qsTr("发送")
             onClicked: serialConfig.sendData(textArea1.text)
         }
 
         TextArea {
             id: textArea1
-            x: 191
-            y: 68
-            width: 427
-            height: 237
+            x: 292
+            y: 44
+            width: parent.width - 302
+            height: parent.height - 54
             wrapMode: TextArea.WrapAnywhere
             placeholderText: qsTr("输入待发送内容；HEX 模式示例: 01 03 00 00 00 01")
         }
@@ -271,50 +275,43 @@ Rectangle {
     // ── 串口参数容器（顶部与接收缓冲区容器对齐 y=5）──────────────────
     Rectangle {
         id: serialParamContainer
-        x: 658
-        y: 5
-        width: 612
-        height: 323
+        anchors.top: parent.top
+        anchors.topMargin: 5
+        anchors.left: parent.left
+        anchors.leftMargin: pageMargin
+        width: rightColumnWidth
+        height: 312
         color: "transparent"
-        border.color: "#A0A0A0"
+        border.color: panelBorderColor
         border.width: 1
-        radius: 4
+        radius: panelRadius
 
-        // 标题（左列起始 x=66，与两列内容水平居中对齐）
+        // 紧凑串口设置样式（参考传统串口工具）
         Text {
             id: text4
-            x: 66
-            y: 14
-            text: qsTr("串口参数")
-            font.pixelSize: 29
+            x: 18
+            y: 12
+            text: qsTr("串口设置")
+            font.pixelSize: titlePixelSize
             font.bold: true
+            color: titleColor
         }
 
-        Frame {
-            id: frame2
-            x: 56
-            y: 3
-            width: 139
-            height: 58
-        }
-
-        // 第一行：串口 | 波特率
         Label {
             id: label
-            x: 66
-            y: 78
-            width: 90
-            height: 23
+            x: 18
+            y: 50
             text: qsTr("串口")
-            font.pointSize: 18
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
             id: comboBox
-            x: 66
-            y: 103
-            width: 220
-            height: 36
+            x: 90
+            y: 44
+            width: parent.width - x - 12
+            height: fieldHeight
             model: serialConfig.availablePorts
             currentIndex: 0
             enabled: !serialConfig.serialOpen
@@ -322,149 +319,178 @@ Rectangle {
 
         Label {
             id: label1
-            x: 306
-            y: 78
-            width: 90
-            height: 23
+            x: 18
+            y: 86
             text: qsTr("波特率")
-            font.pointSize: 18
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
             id: comboBox1
-            x: 306
-            y: 103
-            width: 240
-            height: 36
+            x: 90
+            y: 80
+            width: parent.width - x - 12
+            height: fieldHeight
             model: serialConfig.baudRates
             currentIndex: 10
             enabled: !serialConfig.serialOpen
         }
 
-        // 第二行：校验位 | 停止位
         Label {
-            id: label2
-            x: 66
-            y: 157
-            width: 90
-            height: 23
-            text: qsTr("校验位")
-            font.pointSize: 18
+            id: labelDataBits
+            x: 18
+            y: 122
+            text: qsTr("数据位")
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
-            id: comboBox2
-            x: 66
-            y: 182
-            width: 220
-            height: 36
+            id: comboBoxDataBits
+            x: 90
+            y: 116
+            width: parent.width - x - 12
+            height: fieldHeight
+            model: ["8"]
+            currentIndex: 0
+            enabled: false
+        }
+
+        Label {
+            id: label2
+            x: 18
+            y: 158
+            text: qsTr("停止位")
+            font.pointSize: labelPointSize
+            color: labelColor
+        }
+
+        ComboBox {
+            id: comboBox3
+            x: 90
+            y: 152
+            width: parent.width - x - 12
+            height: fieldHeight
             layer.enabled: false
-            model: serialConfig.parityOptions
+            model: serialConfig.stopBitsOptions
             currentIndex: 0
             enabled: !serialConfig.serialOpen
         }
 
         Label {
             id: label3
-            x: 306
-            y: 157
-            width: 90
-            height: 23
-            text: qsTr("停止位")
-            font.pointSize: 18
+            x: 18
+            y: 194
+            text: qsTr("校验位")
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
-            id: comboBox3
-            x: 306
-            y: 182
-            width: 240
-            height: 36
-            model: serialConfig.stopBitsOptions
+            id: comboBox2
+            x: 90
+            y: 188
+            width: parent.width - x - 12
+            height: fieldHeight
+            model: serialConfig.parityOptions
             currentIndex: 0
             enabled: !serialConfig.serialOpen
         }
 
-        // 操作按钮行（与两列对齐）
         Button {
             id: button5
-            x: 66
-            y: 236
-            width: 220
-            height: 42
-            text: qsTr("刷新串口")
+            x: 18
+            y: 232
+            width: smallButtonWidth
+            height: buttonHeight
+            text: qsTr("刷新")
             enabled: !serialConfig.serialOpen
             onClicked: serialConfig.refreshPorts()
         }
 
         Button {
             id: button6
-            x: 306
-            y: 236
-            width: 240
-            height: 42
+            x: 154
+            y: 232
+            width: smallButtonWidth
+            height: buttonHeight
             text: serialConfig.serialOpen ? qsTr("关闭串口") : qsTr("打开串口")
             onClicked: serialConfig.toggleSerial(comboBox.currentText, comboBox1.currentText, comboBox2.currentText, comboBox3.currentText)
         }
 
-        // 状态栏
         Label {
             id: label8
-            x: 66
-            y: 290
-            width: 480
-            height: 23
+            x: 18
+            y: 272
+            width: parent.width - 30
+            height: 30
             text: serialConfig.serialStatus
             elide: Label.ElideRight
+            wrapMode: Label.Wrap
+            font.pointSize: 9
+            color: statusColor
         }
     }
 
     // ── Modbus快捷发送容器 ────────────────────────────────────────
     Rectangle {
         id: modbusContainer
-        x: 658
-        y: 338
-        width: 612
-        height: 342
+        anchors.top: serialParamContainer.bottom
+        anchors.topMargin: panelGap
+        anchors.left: parent.left
+        anchors.leftMargin: pageMargin
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: pageMargin
+        width: rightColumnWidth
+        height: Math.max(300, parent.height - serialParamContainer.height - 25)
         color: "transparent"
-        border.color: "#A0A0A0"
+        border.color: panelBorderColor
         border.width: 1
-        radius: 4
+        radius: panelRadius
 
         Text {
             id: text3
-            x: 66
-            y: 14
-            text: qsTr("ModBus快捷发送")
-            font.pixelSize: 29
+            x: 18
+            y: 12
+            text: qsTr("Modbus设置")
+            font.pixelSize: titlePixelSize
             font.bold: true
+            color: titleColor
         }
 
-        Frame {
-            id: frame3
-            x: 56
-            y: 3
-            width: 255
-            height: 58
+        Label {
+            id: switchModbusReceiveLabel
+            x: 18
+            y: 50
+            text: qsTr("Modbus模式")
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
-        // 第一行：设备地址 | 功能码
+        Switch {
+            id: switchModbusReceive
+            x: 90
+            y: 44
+            text: ""
+            onToggled: serialConfig.setModbusMode(checked)
+        }
+
         Label {
             id: label4
-            x: 66
-            y: 78
-            width: 100
-            height: 23
+            x: 18
+            y: 86
             text: qsTr("设备地址")
-            font.pointSize: 18
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
             id: comboBox4
-            x: 66
-            y: 103
-            width: 220
-            height: 36
+            x: 90
+            y: 80
+            width: parent.width - x - 12
+            height: fieldHeight
             editable: true
             model: [
                 "1", "2", "3", "4", "5",
@@ -479,20 +505,19 @@ Rectangle {
 
         Label {
             id: label5
-            x: 306
-            y: 78
-            width: 90
-            height: 23
+            x: 18
+            y: 122
             text: qsTr("功能码")
-            font.pointSize: 18
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         ComboBox {
             id: comboBox5
-            x: 306
-            y: 103
-            width: 240
-            height: 36
+            x: 90
+            y: 116
+            width: parent.width - x - 12
+            height: fieldHeight
             model: [
                 "01 读取线圈状态",
                 "02 读取离散输入",
@@ -506,24 +531,22 @@ Rectangle {
             currentIndex: 2
         }
 
-        // 第二行：起始地址 | 寄存器长度
         Label {
             id: label6
-            x: 66
-            y: 157
-            width: 100
-            height: 23
+            x: 18
+            y: 158
             text: qsTr("起始地址")
-            font.pointSize: 18
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         TextField {
             id: textFieldStartAddress
-            x: 66
-            y: 182
-            width: 220
-            height: 40
-            placeholderText: qsTr("例如: 0010 或 0x0010")
+            x: 90
+            y: 152
+            width: parent.width - x - 12
+            height: fieldHeight
+            placeholderText: qsTr("如: 0010")
             text: "0000"
             inputMethodHints: Qt.ImhPreferUppercase
             validator: RegularExpressionValidator {
@@ -533,21 +556,20 @@ Rectangle {
 
         Label {
             id: label7
-            x: 306
-            y: 157
-            width: 140
-            height: 23
+            x: 18
+            y: 194
             text: qsTr("寄存器长度")
-            font.pointSize: 18
+            font.pointSize: labelPointSize
+            color: labelColor
         }
 
         TextField {
             id: textFieldRegisterLength
-            x: 306
-            y: 182
-            width: 240
-            height: 40
-            placeholderText: qsTr("例如: 1")
+            x: 90
+            y: 188
+            width: parent.width - x - 12
+            height: fieldHeight
+            placeholderText: qsTr("如: 1")
             text: "1"
             inputMethodHints: Qt.ImhDigitsOnly
             validator: IntValidator {
@@ -556,13 +578,12 @@ Rectangle {
             }
         }
 
-        // 操作按钮（横跨两列）
         Button {
             id: buttonModbusSend
-            x: 66
-            y: 240
-            width: 480
-            height: 42
+            x: 18
+            y: 230
+            width: parent.width - 30
+            height: buttonHeight
             text: qsTr("发送 Modbus 命令")
             enabled: serialConfig.serialOpen
             onClicked: {
@@ -579,10 +600,10 @@ Rectangle {
 
         Button {
             id: buttonModbusQueryAddr
-            x: 66
-            y: 292
-            width: 480
-            height: 42
+            x: 18
+            y: 270
+            width: parent.width - 30
+            height: buttonHeight
             text: qsTr("查询 Modbus 设备地址")
             enabled: serialConfig.serialOpen
             onClicked: modbusQueryDialog.open()
