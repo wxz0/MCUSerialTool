@@ -2,7 +2,7 @@ import QtQuick
 import MCUTool
 
 Window {
-    width: 1120
+    width: 800
     height: 760
     minimumWidth: 920
     minimumHeight: 620

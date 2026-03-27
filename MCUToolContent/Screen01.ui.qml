@@ -32,6 +32,9 @@ Rectangle {
     property int fieldHeight: 32
     property int buttonHeight: 34
     property int smallButtonWidth: 126
+    property int sideNavWidth: 44
+    property int settingsTopMargin: 5
+    property int currentSettingsPanel: 0
 
     color: Constants.backgroundColor
     clip: true
@@ -46,13 +49,64 @@ Rectangle {
         exclusive: true
     }
 
+    ButtonGroup {
+        id: settingsPanelGroup
+        exclusive: true
+    }
+
+    Rectangle {
+        id: settingsNavContainer
+        anchors.top: parent.top
+        anchors.topMargin: settingsTopMargin
+        anchors.left: parent.left
+        anchors.leftMargin: pageMargin
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: pageMargin
+        width: sideNavWidth
+        color: "transparent"
+        border.color: panelBorderColor
+        border.width: 1
+        radius: panelRadius
+
+        Column {
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 8
+
+            Button {
+                id: buttonPanelSerial
+                width: 34
+                height: 48
+                text: qsTr("串口")
+                checkable: true
+                checked: currentSettingsPanel === 0
+                font.pointSize: 9
+                ButtonGroup.group: settingsPanelGroup
+                onClicked: currentSettingsPanel = 0
+            }
+
+            Button {
+                id: buttonPanelModbus
+                width: 34
+                height: 48
+                text: qsTr("Mod")
+                checkable: true
+                checked: currentSettingsPanel === 1
+                font.pointSize: 9
+                ButtonGroup.group: settingsPanelGroup
+                onClicked: currentSettingsPanel = 1
+            }
+        }
+    }
+
     // ── 接收缓冲区容器 ──────────────────────────────────────────────
     Rectangle {
         id: receiveContainer
         anchors.left: serialParamContainer.right
         anchors.leftMargin: panelGap
         anchors.top: parent.top
-        anchors.topMargin: 5
+        anchors.topMargin: settingsTopMargin
         anchors.right: parent.right
         anchors.rightMargin: pageMargin
         anchors.bottom: sendContainer.top
@@ -135,7 +189,7 @@ Rectangle {
 
         Label {
             id: labelEncoding
-            x: 18
+            x: 20
             width: 48
             height: 20
             y: 158
@@ -146,8 +200,8 @@ Rectangle {
 
         ComboBox {
             id: comboBoxEncoding
-            x: 90
-            width: 190
+            x: 60
+            width: 100
             height: fieldHeight
             y: 152
             model: serialConfig.encodingOptions
@@ -157,10 +211,14 @@ Rectangle {
 
         Flickable {
             id: flickableReceive
-            x: 292
-            y: 44
-            width: parent.width - 302
-            height: parent.height - 54
+            anchors.left: button.right
+            anchors.leftMargin: 0
+            anchors.top: parent.top
+            anchors.topMargin: 44
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 10
             clip: true
             property bool autoScroll: true
 
@@ -263,10 +321,14 @@ Rectangle {
 
         TextArea {
             id: textArea1
-            x: 292
-            y: 44
-            width: parent.width - 302
-            height: parent.height - 54
+            anchors.left: button3.right
+            anchors.leftMargin: 0
+            anchors.top: parent.top
+            anchors.topMargin: 44
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 10
             wrapMode: TextArea.WrapAnywhere
             placeholderText: qsTr("输入待发送内容；HEX 模式示例: 01 03 00 00 00 01")
         }
@@ -275,12 +337,14 @@ Rectangle {
     // ── 串口参数容器（顶部与接收缓冲区容器对齐 y=5）──────────────────
     Rectangle {
         id: serialParamContainer
+        visible: currentSettingsPanel === 0
         anchors.top: parent.top
-        anchors.topMargin: 5
+        anchors.topMargin: settingsTopMargin
         anchors.left: parent.left
-        anchors.leftMargin: pageMargin
+        anchors.leftMargin: pageMargin + sideNavWidth + panelGap
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: pageMargin
         width: rightColumnWidth
-        height: 312
         color: "transparent"
         border.color: panelBorderColor
         border.width: 1
@@ -436,14 +500,14 @@ Rectangle {
     // ── Modbus快捷发送容器 ────────────────────────────────────────
     Rectangle {
         id: modbusContainer
-        anchors.top: serialParamContainer.bottom
-        anchors.topMargin: panelGap
+        visible: currentSettingsPanel === 1
+        anchors.top: parent.top
+        anchors.topMargin: settingsTopMargin
         anchors.left: parent.left
-        anchors.leftMargin: pageMargin
+        anchors.leftMargin: pageMargin + sideNavWidth + panelGap
         anchors.bottom: parent.bottom
         anchors.bottomMargin: pageMargin
         width: rightColumnWidth
-        height: Math.max(300, parent.height - serialParamContainer.height - 25)
         color: "transparent"
         border.color: panelBorderColor
         border.width: 1
