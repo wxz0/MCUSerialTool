@@ -69,6 +69,84 @@ class ModbusProtocol:
         return payload + bytes([crc & 0xFF, (crc >> 8) & 0xFF])
 
     @staticmethod
+    def build_write_frame(dev_addr: int, fc: int, start_addr: int, values) -> bytes:
+        """
+        构建Modbus写命令RTU帧（05/06/0F/10）
+
+        参数:
+            dev_addr: 设备地址 (1-247)
+            fc: 写功能码 (0x05, 0x06, 0x0F, 0x10)
+            start_addr: 起始地址
+            values: 写入值列表
+        """
+        if dev_addr < 1 or dev_addr > 247:
+            return None
+        if start_addr < 0 or start_addr > 0xFFFF:
+            return None
+        if not values:
+            return None
+
+        if fc == 0x05:
+            if len(values) != 1:
+                return None
+            coil_on = bool(values[0])
+            out_val = 0xFF00 if coil_on else 0x0000
+            payload = bytes([
+                dev_addr, fc,
+                (start_addr >> 8) & 0xFF, start_addr & 0xFF,
+                (out_val >> 8) & 0xFF, out_val & 0xFF,
+            ])
+        elif fc == 0x06:
+            if len(values) != 1:
+                return None
+            reg_val = int(values[0])
+            if reg_val < 0 or reg_val > 0xFFFF:
+                return None
+            payload = bytes([
+                dev_addr, fc,
+                (start_addr >> 8) & 0xFF, start_addr & 0xFF,
+                (reg_val >> 8) & 0xFF, reg_val & 0xFF,
+            ])
+        elif fc == 0x0F:
+            qty = len(values)
+            if qty < 1 or qty > 1968:
+                return None
+            byte_count = (qty + 7) // 8
+            packed = [0] * byte_count
+            for i, coil_val in enumerate(values):
+                if int(coil_val):
+                    packed[i // 8] |= 1 << (i % 8)
+            payload = bytes([
+                dev_addr, fc,
+                (start_addr >> 8) & 0xFF, start_addr & 0xFF,
+                (qty >> 8) & 0xFF, qty & 0xFF,
+                byte_count,
+                *packed,
+            ])
+        elif fc == 0x10:
+            qty = len(values)
+            if qty < 1 or qty > 123:
+                return None
+            data = []
+            for reg_val in values:
+                reg_val = int(reg_val)
+                if reg_val < 0 or reg_val > 0xFFFF:
+                    return None
+                data.extend([(reg_val >> 8) & 0xFF, reg_val & 0xFF])
+            payload = bytes([
+                dev_addr, fc,
+                (start_addr >> 8) & 0xFF, start_addr & 0xFF,
+                (qty >> 8) & 0xFF, qty & 0xFF,
+                qty * 2,
+                *data,
+            ])
+        else:
+            return None
+
+        crc = ModbusProtocol.crc16(payload)
+        return payload + bytes([crc & 0xFF, (crc >> 8) & 0xFF])
+
+    @staticmethod
     def is_valid_frame(frame: bytes) -> bool:
         """验证Modbus帧的CRC校验"""
         if len(frame) < 5:
